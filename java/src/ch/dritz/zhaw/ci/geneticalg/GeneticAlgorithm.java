@@ -137,8 +137,9 @@ public class GeneticAlgorithm
 	 * @param ind
 	 * @param prob
 	 */
-	public static void mutate(Individual ind, double prob)
+	public static boolean mutate(Individual ind, double prob)
 	{
+		int old = ind.val;
 		int mask = 1;
 		for (int i = 0; i < BITS; i++) {
 			double r = rand.nextDouble();
@@ -148,12 +149,19 @@ public class GeneticAlgorithm
 			mask <<= 1;
 		}
 		ind.fitness(MIN_G);
+		return old != ind.val;
 	}
 
-	public void mutate(double prob)
+	public int mutate(double prob, boolean minOne)
 	{
-		for (Individual ind : individuals)
-			mutate(ind, prob);
+		int mutated = 0;
+		do {
+			for (Individual ind : individuals) {
+				if (mutate(ind, prob))
+					mutated++;
+			}
+		} while (minOne && mutated == 0);
+		return mutated;
 	}
 
 	public void show()
@@ -168,7 +176,7 @@ public class GeneticAlgorithm
 	{
 		Individual best = null;
 		for (Individual ind : individuals) {
-			if (!ind.fitness(MIN_G))
+			if (!ind.ok)
 				continue;
 			if (best == null || ind.fitness < best.fitness)
 				best = ind;
@@ -176,7 +184,6 @@ public class GeneticAlgorithm
 		if (best != null) {
 			Individual tmp = best.duplicate();
 			tmp.index = best.index;
-			tmp.fitness(MIN_G);
 			bestList.add(tmp);
 		}
 	}
@@ -196,7 +203,8 @@ public class GeneticAlgorithm
 		rankSelection();
 		if (recombinePairs > 0)
 			recombine(recombinePairs);
-		mutate(mutationProb);
+		int mutated = mutate(mutationProb, recombinePairs == 0);
+		System.out.println("Mutated: " + mutated);
 		saveBest();
 	}
 
@@ -279,6 +287,8 @@ public class GeneticAlgorithm
 			Individual ind = new Individual();
 			ind.val = val;
 			ind.fitness = fitness;
+			ind.g = g;
+			ind.ok = ok;
 			ind.rank = rank;
 			ind.start = start;
 			return ind;
