@@ -209,7 +209,7 @@ public class GeneticAlgorithm
 	public static class Individual
 	{
 		int index;
-		Integer val;
+		public Integer val;
 
 		int rank = 0;
 		double start = 0D;
