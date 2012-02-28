@@ -104,11 +104,11 @@ public class GeneticAlgorithm
 	public static void recombine(Individual ind1, Individual ind2)
 	{
 		int where = rand.nextInt(2 * BITS - 2) + 1;
-		int mask1 = where - 1;
-		int mask2 = ~mask1;
+		int mask1 = (1 << where) - 1;
+		int mask2 = ~mask1 & 0x7FFFFFFF;
 
-		int new1 = (ind1.val & mask1) | (ind2.val & mask2);
-		int new2 = (ind1.val & mask2) | (ind2.val & mask1);
+		int new1 = (ind1.val & mask2) | (ind2.val & mask1);
+		int new2 = (ind1.val & mask1) | (ind2.val & mask2);
 
 		ind1.reset();
 		ind2.reset();
@@ -118,7 +118,19 @@ public class GeneticAlgorithm
 
 	public void recomine(int numPairs)
 	{
-		// FIXME
+		List<Integer> indices = new ArrayList<Integer>(individuals.size());
+		for (int i = 0; i < individuals.size(); i++)
+			indices.add(i);
+
+		for (int i = 0; i < numPairs; i++) {
+			int r = rand.nextInt(indices.size());
+			int idx1 = indices.remove(r);
+
+			r = rand.nextInt(indices.size());
+			int idx2 = indices.remove(r);
+
+			recombine(individuals.get(idx1), individuals.get(idx2));
+		}
 	}
 
 	/**
@@ -183,9 +195,9 @@ public class GeneticAlgorithm
 	public void round(double mutationProb, int recombinePairs)
 	{
 		rankSelection();
-		mutate(mutationProb);
 		if (recombinePairs > 0)
 			recomine(recombinePairs);
+		mutate(mutationProb);
 		saveBest();
 	}
 
