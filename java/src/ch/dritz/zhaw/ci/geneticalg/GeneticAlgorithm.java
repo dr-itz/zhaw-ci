@@ -55,7 +55,7 @@ public class GeneticAlgorithm
 				 * because we want to minimize f().
 				 * This sorts the biggest element first.
 				 */
-				return (int) (o2.fitness - o1.fitness);
+				return (int) Double.compare(o2.fitness, o1.fitness);
 			}
 		});
 
