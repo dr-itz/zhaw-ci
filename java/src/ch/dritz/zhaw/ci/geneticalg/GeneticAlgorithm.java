@@ -84,7 +84,10 @@ public class GeneticAlgorithm
 			for (int j = okList.size() - 1; j >= 0; j--) {
 				Individual ind = okList.get(j);
 				if (ind.start <= r) {
-					selectedInd.add(ind);
+					Individual tmp = ind.duplicate();
+					tmp.index = i;
+					tmp.fitness(MIN_G);
+					selectedInd.add(tmp);
 					break;
 				}
 			}
@@ -113,6 +116,10 @@ public class GeneticAlgorithm
 		ind2.val = new2;
 	}
 
+	public void recomine(int numPairs)
+	{
+		// FIXME
+	}
 
 	/**
 	 * for each bit in the individual, flip with the given probability, stopping
@@ -129,6 +136,13 @@ public class GeneticAlgorithm
 				ind.val ^= mask;
 			}
 		}
+		ind.fitness(MIN_G);
+	}
+
+	public void mutate(double prob)
+	{
+		for (Individual ind : individuals)
+			mutate(ind, prob);
 	}
 
 	public void show()
@@ -148,7 +162,31 @@ public class GeneticAlgorithm
 			if (best == null || ind.fitness < best.fitness)
 				best = ind;
 		}
-		bestList.add(best.duplicate());
+		if (best != null) {
+			Individual tmp = best.duplicate();
+			tmp.index = best.index;
+			tmp.fitness(MIN_G);
+			bestList.add(tmp);
+		}
+	}
+
+	public void showBest()
+	{
+		for (int i = 0; i < bestList.size(); i++) {
+			System.out.print("round: ");
+			System.out.print(String.format("%03d", i));
+			System.out.print(" BEST: ");
+			System.out.println(bestList.get(i));
+		}
+	}
+
+	public void round(double mutationProb, int recombinePairs)
+	{
+		rankSelection();
+		mutate(mutationProb);
+		if (recombinePairs > 0)
+			recomine(recombinePairs);
+		saveBest();
 	}
 
 	private static class Individual
@@ -159,6 +197,7 @@ public class GeneticAlgorithm
 		int rank = 0;
 		double start = 0D;
 		double fitness = 0D;
+		double g = 0D;
 		boolean ok = false;
 
 		private static Individual encode(int index, int d, int h)
@@ -179,15 +218,15 @@ public class GeneticAlgorithm
 			return val & MASK;
 		}
 
-		public boolean fitness(double max)
+		public boolean fitness(double minG)
 		{
 			double d = decodeD();
 			double h = decodeH();
 
 			fitness = Math.PI * d * d / 2 + Math.PI * d * h;
 
-			double g = Math.PI * d * d * h / 4;
-			ok = g >= max;
+			g = Math.PI * d * d * h / 4;
+			ok = g >= minG;
 
 			return ok;
 		}
@@ -197,6 +236,7 @@ public class GeneticAlgorithm
 			start = 0D;
 			rank = 0;
 			fitness = 0D;
+			g = 0D;
 			ok = false;
 		}
 
@@ -209,6 +249,7 @@ public class GeneticAlgorithm
 			sb.append(", d: ").append(String.format("%02d", decodeD()));
 			sb.append(", h: ").append(String.format("%02d", decodeH()));
 			sb.append(", fit: ").append(String.format("%04.3f", fitness));
+			sb.append(", g: ").append(String.format("%04.3f", g));
 			sb.append(", ok: ").append(ok);
 			sb.append(", rank: ").append(rank);
 			sb.append(", start: ").append(String.format("%1.3f", start));
@@ -233,8 +274,14 @@ public class GeneticAlgorithm
 	{
 		GeneticAlgorithm me = new GeneticAlgorithm(NUM);
 		me.show();
-		System.out.println("===================================== Rank selection =====================================");
-		me.rankSelection();
-		me.show();
+
+		for (int i = 0; i < 100; i++) {
+			System.out.print("============= Round ");
+			System.out.print(String.format("%03d", i));
+			System.out.println(" ===========================================================");
+			me.round(0.1D, 0);
+			me.show();
+		}
+		me.showBest();
 	}
 }
