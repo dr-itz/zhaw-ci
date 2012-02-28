@@ -144,7 +144,7 @@ public class GeneticAlgorithm
 		for (int i = 0; i < BITS; i++) {
 			mask <<= 1;
 			double r = rand.nextDouble();
-			if (r <= prob) {
+			if (r < prob) {
 				ind.val ^= mask;
 			}
 		}
@@ -201,7 +201,12 @@ public class GeneticAlgorithm
 		saveBest();
 	}
 
-	private static class Individual
+	public List<Individual> getIndividuals()
+	{
+		return individuals;
+	}
+
+	public static class Individual
 	{
 		int index;
 		Integer val;
@@ -212,7 +217,7 @@ public class GeneticAlgorithm
 		double g = 0D;
 		boolean ok = false;
 
-		private static Individual encode(int index, int d, int h)
+		public static Individual encode(int index, int d, int h)
 		{
 			Individual ret = new Individual();
 			ret.index = index;

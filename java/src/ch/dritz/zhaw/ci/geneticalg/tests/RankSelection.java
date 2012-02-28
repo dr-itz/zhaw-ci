@@ -14,7 +14,7 @@ public class RankSelection
 	{
 		GeneticAlgorithm me = new GeneticAlgorithm(GeneticAlgorithm.NUM);
 		me.show();
-		System.out.println(" ===========================================================");
+		System.out.println(" ============================ Rank Selection ===============================");
 		me.rankSelection();
 		me.show();
 	}
