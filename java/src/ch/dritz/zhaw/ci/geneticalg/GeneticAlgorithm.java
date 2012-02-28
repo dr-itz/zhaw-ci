@@ -273,6 +273,8 @@ public class GeneticAlgorithm
 		{
 			Individual ind = new Individual();
 			ind.val = val;
+			ind.rank = rank;
+			ind.start = start;
 			return ind;
 		}
 	}
