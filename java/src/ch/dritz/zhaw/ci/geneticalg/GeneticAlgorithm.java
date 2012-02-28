@@ -100,7 +100,7 @@ public class GeneticAlgorithm
 	 */
 	public static void recombine(Individual ind1, Individual ind2)
 	{
-		int where = rand.nextInt(2 * BITS);
+		int where = rand.nextInt(2 * BITS - 2) + 1;
 		int mask1 = where - 1;
 		int mask2 = ~mask1;
 
