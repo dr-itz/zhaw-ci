@@ -26,11 +26,13 @@ public class GeneticAlgorithm
 	private static Random rand = new Random();
 
 	private List<Individual> individuals;
+	private List<Individual> bestList;
 
 
 	public GeneticAlgorithm(int num)
 	{
 		individuals = new ArrayList<Individual>(num);
+		bestList = new ArrayList<Individual>();
 
 		for (int i = 0; i < num; i++) {
 			individuals.add(
@@ -119,6 +121,18 @@ public class GeneticAlgorithm
 		}
 	}
 
+	public void saveBest()
+	{
+		Individual best = null;
+		for (Individual ind : individuals) {
+			if (!ind.fitness(MIN_G))
+				continue;
+			if (best == null || ind.fitness < best.fitness)
+				best = ind;
+		}
+		bestList.add(best.duplicate());
+	}
+
 	private static class Individual
 	{
 		int index;
@@ -182,6 +196,13 @@ public class GeneticAlgorithm
 			sb.append(", start: ").append(String.format("%1.3f", start));
 
 			return sb.toString();
+		}
+
+		public Individual duplicate()
+		{
+			Individual ind = new Individual();
+			ind.val = val;
+			return ind;
 		}
 	}
 
