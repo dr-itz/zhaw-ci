@@ -23,13 +23,15 @@ public class GeneticAlgorithm
 	private static final int MAX = 1 << BITS;
 	private static final int MASK = MAX - 1;
 
-	List<Individual> individuals;
+	private static Random rand = new Random();
+
+	private List<Individual> individuals;
+
 
 	public GeneticAlgorithm(int num)
 	{
 		individuals = new ArrayList<Individual>(num);
 
-		Random rand = new Random();
 		for (int i = 0; i < num; i++) {
 			individuals.add(
 				Individual.encode(i, rand.nextInt(MAX), rand.nextInt(MAX)));
@@ -75,7 +77,6 @@ public class GeneticAlgorithm
 
 		// randomly select individuals
 		List<Individual> selectedInd = new ArrayList<Individual>();
-		Random rand = new Random();
 		for (int i = 0; i < individuals.size(); i++) {
 			double r = rand.nextDouble();
 			for (int j = okList.size() - 1; j >= 0; j--) {
@@ -88,6 +89,26 @@ public class GeneticAlgorithm
 		}
 
 		individuals = selectedInd;
+	}
+
+	/**
+	 * Recombines the two individuals
+	 * @param ind1
+	 * @param ind2
+	 */
+	public static void recombine(Individual ind1, Individual ind2)
+	{
+		int where = rand.nextInt(2 * BITS);
+		int mask1 = where - 1;
+		int mask2 = ~mask1;
+
+		int new1 = (ind1.val & mask1) | (ind2.val & mask2);
+		int new2 = (ind1.val & mask2) | (ind2.val & mask1);
+
+		ind1.reset();
+		ind2.reset();
+		ind1.val = new1;
+		ind2.val = new2;
 	}
 
 	public void show()
@@ -137,6 +158,14 @@ public class GeneticAlgorithm
 			ok = g >= max;
 
 			return ok;
+		}
+
+		public void reset()
+		{
+			start = 0D;
+			rank = 0;
+			fitness = 0D;
+			ok = false;
 		}
 
 		@Override
