@@ -141,11 +141,11 @@ public class GeneticAlgorithm
 	{
 		int mask = 1;
 		for (int i = 0; i < BITS; i++) {
-			mask <<= 1;
 			double r = rand.nextDouble();
 			if (r < prob) {
 				ind.val ^= mask;
 			}
+			mask <<= 1;
 		}
 		ind.fitness(MIN_G);
 	}
