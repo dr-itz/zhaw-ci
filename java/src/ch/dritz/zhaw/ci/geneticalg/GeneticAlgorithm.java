@@ -30,80 +30,58 @@ public class GeneticAlgorithm
 		individuals = new ArrayList<Individual>(num);
 
 		Random rand = new Random();
-		for (int i = 0; i < num; i++)
-			individuals.add(encode(i, rand.nextInt(MAX), rand.nextInt(MAX)));
-	}
-
-	private static Individual encode(int index, int d, int h)
-	{
-		Individual ret = new Individual();
-		ret.index = index;
-		ret.val = (d & MASK) << BITS | (h & MASK);
-		return ret;
-	}
-
-	private static int decodeD(Individual ind)
-	{
-		return ind.val >> BITS;
-	}
-
-	private static int decodeH(Individual ind)
-	{
-		return ind.val & MASK;
-	}
-
-	public Fitness fitness(Individual ind, double max)
-	{
-		Fitness ret = new Fitness();
-		ret.ind = ind;
-		ret.start = 0;
-
-		double d = decodeD(ind);
-		double h = decodeH(ind);
-
-		ret.fitness = Math.PI * d * d / 2 + Math.PI * d * h;
-
-		double g = Math.PI * d * d * h / 4;
-		ret.ok = g >= max;
-
-		return ret;
+		for (int i = 0; i < num; i++) {
+			individuals.add(
+				Individual.encode(i, rand.nextInt(MAX), rand.nextInt(MAX)));
+		}
 	}
 
 	public void rankSelection()
 	{
-		List<Fitness> fitnesses = new ArrayList<Fitness>();
+		// calculate fitness, filter
+		List<Individual> okList = new ArrayList<Individual>();
 		for (Individual ind : individuals) {
-			Fitness fit = fitness(ind, MIN_G);
-			if (fit.ok)
-				fitnesses.add(fit);
+			if (ind.fitness(MIN_G))
+				okList.add(ind);
 		}
-		Collections.sort(fitnesses, new Comparator<Fitness>() {
+
+		// sort in preparation to calculate rank
+		Collections.sort(okList, new Comparator<Individual>() {
 			@Override
-			public int compare(Fitness o1, Fitness o2)
+			public int compare(Individual o1, Individual o2)
 			{
+				/*
+				 * We want to assign the highest rank the lowest fitness value
+				 * because we want to minimize f().
+				 * This sorts the biggest element first.
+				 */
 				return (int) (o2.fitness - o1.fitness);
 			}
 		});
 
+		// set rank based on position in sorted list
 		int ranks = 0;
-		for (int i = 0; i < fitnesses.size(); i++) {
-			fitnesses.get(i).rank = i;
-			ranks += i;
+		for (int i = 0; i < okList.size(); i++) {
+			okList.get(i).rank = i + 1;
+			ranks += i + 1;
 		}
 
+		// calculate a start value between 0.0 and 1.0 based on rank
 		double start = 0;
-		for (Fitness f : fitnesses) {
-			start = start + 1D / (double) ranks * f.rank;
-			f.start = start;
+		for (Individual ind : okList) {
+			ind.start = start;
+			start += 1D / (double) ranks * ind.rank;
 		}
 
-		List<Individual> selectedInd = new ArrayList<GeneticAlgorithm.Individual>();
+		// randomly select individuals
+		List<Individual> selectedInd = new ArrayList<Individual>();
 		Random rand = new Random();
 		for (int i = 0; i < individuals.size(); i++) {
 			double r = rand.nextDouble();
-			for (Fitness f : fitnesses) {
-				if (f.start >= r) {
-					selectedInd.add(f.ind);
+			for (int j = okList.size() - 1; j >= 0; j--) {
+				Individual ind = okList.get(j);
+				if (ind.start <= r) {
+					selectedInd.add(ind);
 					break;
 				}
 			}
@@ -115,35 +93,67 @@ public class GeneticAlgorithm
 	public void show()
 	{
 		for (Individual ind : individuals) {
-			int d = decodeD(ind);
-			int h = decodeH(ind);
-
-			Fitness fit = fitness(ind, MIN_G);
-			StringBuilder sb = new StringBuilder();
-			sb.append("i: ").append(ind.index);
-			sb.append(", d: ").append(d);
-			sb.append(", h: ").append(h);
-			sb.append(", f: ").append(String.format("%1.3f", fit.fitness));
-			sb.append(", ").append(fit.ok);
-
-			System.out.println(sb);
+			ind.fitness(MIN_G);
+			System.out.println(ind);
 		}
 	}
-
 
 	private static class Individual
 	{
 		int index;
 		Integer val;
-	}
 
-	private static class Fitness
-	{
-		Individual ind;
 		int rank = 0;
 		double start = 0D;
 		double fitness = 0D;
 		boolean ok = false;
+
+		private static Individual encode(int index, int d, int h)
+		{
+			Individual ret = new Individual();
+			ret.index = index;
+			ret.val = (d & MASK) << BITS | (h & MASK);
+			return ret;
+		}
+
+		public int decodeD()
+		{
+			return val >> BITS;
+		}
+
+		public int decodeH()
+		{
+			return val & MASK;
+		}
+
+		public boolean fitness(double max)
+		{
+			double d = decodeD();
+			double h = decodeH();
+
+			fitness = Math.PI * d * d / 2 + Math.PI * d * h;
+
+			double g = Math.PI * d * d * h / 4;
+			ok = g >= max;
+
+			return ok;
+		}
+
+		@Override
+		public String toString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.append("Individual at ").append(String.format("%02d", index));
+			sb.append(", value: ").append(String.format("%03x", val));
+			sb.append(", d: ").append(String.format("%02d", decodeD()));
+			sb.append(", h: ").append(String.format("%02d", decodeH()));
+			sb.append(", fit: ").append(String.format("%04.3f", fitness));
+			sb.append(", ok: ").append(ok);
+			sb.append(", rank: ").append(rank);
+			sb.append(", start: ").append(String.format("%1.3f", start));
+
+			return sb.toString();
+		}
 	}
 
 
@@ -155,7 +165,7 @@ public class GeneticAlgorithm
 	{
 		GeneticAlgorithm me = new GeneticAlgorithm(NUM);
 		me.show();
-		System.out.println("===== Rank selection =====");
+		System.out.println("===================================== Rank selection =====================================");
 		me.rankSelection();
 		me.show();
 	}
