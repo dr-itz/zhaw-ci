@@ -298,24 +298,4 @@ public class GeneticAlgorithm
 		}
 		return sb.toString();
 	}
-
-	////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-		GeneticAlgorithm me = new GeneticAlgorithm(NUM);
-		me.show();
-
-		for (int i = 0; i < 100; i++) {
-			System.out.print("============= Round ");
-			System.out.print(String.format("%03d", i));
-			System.out.println(" ===========================================================");
-			me.round(0.1D, 0);
-			me.show();
-		}
-		me.showBest();
-	}
 }
