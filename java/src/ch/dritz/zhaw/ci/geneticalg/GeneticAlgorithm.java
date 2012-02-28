@@ -16,14 +16,14 @@ import java.util.Random;
  */
 public class GeneticAlgorithm
 {
-	private static final int BITS = 5;
-	private static final int NUM = 30;
-	private static final double MIN_G = 300D;
+	public static final int BITS = 5;
+	public static final int NUM = 30;
+	public static final double MIN_G = 300D;
 
-	private static final int MAX = 1 << BITS;
-	private static final int MASK = MAX - 1;
+	public static final int MAX = 1 << BITS;
+	public static final int MASK = MAX - 1;
 
-	private static Random rand = new Random();
+	public static Random rand = new Random();
 
 	private List<Individual> individuals;
 	private List<Individual> bestList;
@@ -258,6 +258,7 @@ public class GeneticAlgorithm
 			StringBuilder sb = new StringBuilder();
 			sb.append("Individual at ").append(String.format("%02d", index));
 			sb.append(", value: ").append(String.format("%03x", val));
+			sb.append("(").append(toBitString(this)).append(")");
 			sb.append(", d: ").append(String.format("%02d", decodeD()));
 			sb.append(", h: ").append(String.format("%02d", decodeH()));
 			sb.append(", fit: ").append(String.format("%04.3f", fitness));
@@ -279,8 +280,22 @@ public class GeneticAlgorithm
 		}
 	}
 
+	public static String toBitString(Individual ind)
+	{
+		StringBuilder sb = new StringBuilder();
+		int mask = 1 << 2*BITS;
+		for (int i = 0; i < 2*BITS; i++) {
+			if ((ind.val & mask) != 0)
+				sb.append("1");
+			else
+				sb.append("0");
+			mask >>= 1;
+		}
+		return sb.toString();
+	}
 
 	////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * @param args
 	 */
