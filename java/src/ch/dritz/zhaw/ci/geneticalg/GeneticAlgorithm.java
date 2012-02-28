@@ -74,7 +74,7 @@ public class GeneticAlgorithm
 		double start = 0;
 		for (Individual ind : okList) {
 			ind.start = start;
-			start += 1D / (double) ranks * ind.rank;
+			start += 1D / (double) ranks * (double) ind.rank;
 		}
 
 		// randomly select individuals
@@ -86,7 +86,6 @@ public class GeneticAlgorithm
 				if (ind.start <= r) {
 					Individual tmp = ind.duplicate();
 					tmp.index = i;
-					tmp.fitness(MIN_G);
 					selectedInd.add(tmp);
 					break;
 				}
@@ -279,6 +278,7 @@ public class GeneticAlgorithm
 		{
 			Individual ind = new Individual();
 			ind.val = val;
+			ind.fitness = fitness;
 			ind.rank = rank;
 			ind.start = start;
 			return ind;
