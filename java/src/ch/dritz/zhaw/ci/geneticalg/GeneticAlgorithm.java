@@ -113,15 +113,22 @@ public class GeneticAlgorithm
 		ind2.val = new2;
 	}
 
+
 	/**
-	 * mutates (flips) the bit at the given position
+	 * for each bit in the individual, flip with the given probability, stopping
 	 * @param ind
-	 * @param bit
+	 * @param prob
 	 */
-	public static void mutate(Individual ind, int bit)
+	public static void mutate(Individual ind, double prob)
 	{
-		int mask = 1 << bit;
-		ind.val ^= mask;
+		int mask = 1;
+		for (int i = 0; i < BITS; i++) {
+			mask <<= 1;
+			double r = rand.nextDouble();
+			if (r <= prob) {
+				ind.val ^= mask;
+			}
+		}
 	}
 
 	public void show()
