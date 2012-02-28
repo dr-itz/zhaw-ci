@@ -113,6 +113,17 @@ public class GeneticAlgorithm
 		ind2.val = new2;
 	}
 
+	/**
+	 * mutates (flips) the bit at the given position
+	 * @param ind
+	 * @param bit
+	 */
+	public static void mutate(Individual ind, int bit)
+	{
+		int mask = 1 << bit;
+		ind.val ^= mask;
+	}
+
 	public void show()
 	{
 		for (Individual ind : individuals) {
@@ -153,7 +164,7 @@ public class GeneticAlgorithm
 
 		public int decodeD()
 		{
-			return val >> BITS;
+			return (val >> BITS) & MASK;
 		}
 
 		public int decodeH()
