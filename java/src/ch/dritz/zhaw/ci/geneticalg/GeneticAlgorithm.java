@@ -116,7 +116,7 @@ public class GeneticAlgorithm
 		ind2.val = new2;
 	}
 
-	public void recomine(int numPairs)
+	public void recombine(int numPairs)
 	{
 		List<Integer> indices = new ArrayList<Integer>(individuals.size());
 		for (int i = 0; i < individuals.size(); i++)
@@ -196,7 +196,7 @@ public class GeneticAlgorithm
 	{
 		rankSelection();
 		if (recombinePairs > 0)
-			recomine(recombinePairs);
+			recombine(recombinePairs);
 		mutate(mutationProb);
 		saveBest();
 	}
