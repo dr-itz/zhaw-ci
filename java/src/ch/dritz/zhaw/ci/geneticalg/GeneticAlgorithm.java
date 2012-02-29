@@ -29,6 +29,10 @@ public class GeneticAlgorithm
 	private List<Individual> bestList;
 
 
+	/**
+	 * Creates the genetic algorithm with num random elements
+	 * @param num Number of random elements
+	 */
 	public GeneticAlgorithm(int num)
 	{
 		individuals = new ArrayList<Individual>(num);
@@ -40,9 +44,12 @@ public class GeneticAlgorithm
 		}
 	}
 
+	/**
+	 * Executes a rank based selection on all elements
+	 */
 	public void rankSelection()
 	{
-		// calculate fitness, filter
+		// calculate fitness, filter invalid elements
 		List<Individual> okList = new ArrayList<Individual>();
 		for (Individual ind : individuals) {
 			if (ind.fitness(MIN_G))
@@ -96,15 +103,21 @@ public class GeneticAlgorithm
 	}
 
 	/**
-	 * Recombines the two individuals
+	 * Recombines the two individuals using single point recombination at a
+	 * random position
 	 * @param ind1
 	 * @param ind2
 	 */
 	public static void recombine(Individual ind1, Individual ind2)
 	{
+		/*
+		 * random position, ensuring at least one bit on the left and the right
+		 * is kept, otherwise a simple swap could happen (it still can depending
+		 * on the actual bits, but with lower probability)
+		 */
 		int where = rand.nextInt(2 * BITS - 2) + 1;
-		int mask1 = (1 << where) - 1;
-		int mask2 = ~mask1 & 0x7FFFFFFF;
+		int mask1 = (1 << where) - 1;    // the lower bits
+		int mask2 = ~mask1 & 0x7FFFFFFF; // the higher bits
 
 		int new1 = (ind1.val & mask2) | (ind2.val & mask1);
 		int new2 = (ind1.val & mask1) | (ind2.val & mask2);
@@ -115,16 +128,26 @@ public class GeneticAlgorithm
 		ind2.val = new2;
 	}
 
+	/**
+	 * Recombine numPairs pairs with each other
+	 * @param numPairs
+	 */
 	public void recombine(int numPairs)
 	{
+		// create a list with all indices
 		List<Integer> indices = new ArrayList<Integer>(individuals.size());
 		for (int i = 0; i < individuals.size(); i++)
 			indices.add(i);
 
 		for (int i = 0; i < numPairs; i++) {
+			/*
+			 * get a random index from the list and remove to ensure each index
+			 * is only used once
+			 */
 			int r = rand.nextInt(indices.size());
 			int idx1 = indices.remove(r);
 
+			// again..
 			r = rand.nextInt(indices.size());
 			int idx2 = indices.remove(r);
 
@@ -133,9 +156,10 @@ public class GeneticAlgorithm
 	}
 
 	/**
-	 * for each bit in the individual, flip with the given probability, stopping
+	 * for each bit in the individual, flip with the given probability
 	 * @param ind
 	 * @param prob
+	 * @return true if at least one bit changed, false otherwise
 	 */
 	public static boolean mutate(Individual ind, double prob)
 	{
@@ -152,6 +176,12 @@ public class GeneticAlgorithm
 		return old != ind.val;
 	}
 
+	/**
+	 * Iterates over all individuals, mutates them
+	 * @param prob
+	 * @param minOne if true, ensures at least one mutated individual
+	 * @return Number of mutated individuals
+	 */
 	public int mutate(double prob, boolean minOne)
 	{
 		int mutated = 0;
@@ -164,6 +194,9 @@ public class GeneticAlgorithm
 		return mutated;
 	}
 
+	/**
+	 * Shows all individuals
+	 */
 	public void show()
 	{
 		for (Individual ind : individuals) {
@@ -172,6 +205,9 @@ public class GeneticAlgorithm
 		}
 	}
 
+	/**
+	 * Saves the individual with the best (lowest) fitness value
+	 */
 	public void saveBest()
 	{
 		Individual best = null;
@@ -188,6 +224,9 @@ public class GeneticAlgorithm
 		}
 	}
 
+	/**
+	 * Shows the best individuals from each round
+	 */
 	public void showBest()
 	{
 		for (int i = 0; i < bestList.size(); i++) {
@@ -198,6 +237,16 @@ public class GeneticAlgorithm
 		}
 	}
 
+	/**
+	 * Execute a whole round
+	 * - calculate fitness (as part of rank selection)
+	 * - perform rank selection
+	 * - optionally recombine some individuals
+	 * - mutate (and re-calculate fitness)
+	 * - save best
+	 * @param mutationProb
+	 * @param recombinePairs
+	 */
 	public void round(double mutationProb, int recombinePairs)
 	{
 		rankSelection();
@@ -213,10 +262,15 @@ public class GeneticAlgorithm
 		return individuals;
 	}
 
+	/**
+	 * A single individual. The value is binary encoded in a simple int, using
+	 * bit operations to access the bits.
+	 * @author D.Ritz
+	 */
 	public static class Individual
 	{
 		int index;
-		public Integer val;
+		Integer val;
 
 		int rank = 0;
 		double start = 0D;
@@ -224,6 +278,13 @@ public class GeneticAlgorithm
 		double g = 0D;
 		boolean ok = false;
 
+		/**
+		 * Helper to create a new individual with the given values for d, h
+		 * @param index where in the list this will be
+		 * @param d d
+		 * @param h h
+		 * @return new individual
+		 */
 		public static Individual encode(int index, int d, int h)
 		{
 			Individual ret = new Individual();
@@ -232,16 +293,29 @@ public class GeneticAlgorithm
 			return ret;
 		}
 
+		/**
+		 * Decodes 'd' from the value
+		 * @return d
+		 */
 		public int decodeD()
 		{
 			return (val >> BITS) & MASK;
 		}
 
+		/**
+		 * Decodes 'h' from the value
+		 * @return h
+		 */
 		public int decodeH()
 		{
 			return val & MASK;
 		}
 
+		/**
+		 * calculates the fitness
+		 * @param minG the minimal value allowed for g()
+		 * @return true if g() >= minG
+		 */
 		public boolean fitness(double minG)
 		{
 			double d = decodeD();
@@ -255,6 +329,9 @@ public class GeneticAlgorithm
 			return ok;
 		}
 
+		/**
+		 * resets everything but the actual value
+		 */
 		public void reset()
 		{
 			start = 0D;
@@ -262,6 +339,11 @@ public class GeneticAlgorithm
 			fitness = 0D;
 			g = 0D;
 			ok = false;
+		}
+
+		public Integer getVal()
+		{
+			return val;
 		}
 
 		@Override
@@ -282,6 +364,10 @@ public class GeneticAlgorithm
 			return sb.toString();
 		}
 
+		/**
+		 * Clones the individual
+		 * @return A copy of the individual with only the important values copied
+		 */
 		public Individual duplicate()
 		{
 			Individual ind = new Individual();
@@ -295,6 +381,11 @@ public class GeneticAlgorithm
 		}
 	}
 
+	/**
+	 * Returns a String representing the bits in the individual
+	 * @param ind The individual
+	 * @return The bit string
+	 */
 	public static String toBitString(Individual ind)
 	{
 		StringBuilder sb = new StringBuilder();

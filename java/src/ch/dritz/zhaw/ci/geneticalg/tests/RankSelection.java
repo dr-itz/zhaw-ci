@@ -3,6 +3,7 @@ package ch.dritz.zhaw.ci.geneticalg.tests;
 import ch.dritz.zhaw.ci.geneticalg.GeneticAlgorithm;
 
 /**
+ * Tests one round of rank based selection
  * @author D. Ritz
  */
 public class RankSelection

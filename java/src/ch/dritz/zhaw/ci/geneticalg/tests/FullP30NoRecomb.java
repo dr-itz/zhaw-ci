@@ -3,6 +3,9 @@ package ch.dritz.zhaw.ci.geneticalg.tests;
 import ch.dritz.zhaw.ci.geneticalg.GeneticAlgorithm;
 
 /**
+ * The full algorithm with
+ * - 30% mutation probability (useless)
+ * - NO recombination
  * @author D. Ritz
  */
 public class FullP30NoRecomb
