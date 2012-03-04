@@ -13,13 +13,11 @@ public class Individual
 	public static final double MAX_D = 30D;
 	public static final double MAX_H = 30D;
 
-	public static final int IDX_PARAM_D = 0;
-	public static final int IDX_PARAM_H = 1;
-
 	public static Random rand = new Random();
 
 	// object parameters
-	double[] param = { 0D, 0D};
+	double paramD = 0D;
+	double paramH = 0D;
 
 	// fitness
 	double fitness = 0D;
@@ -42,8 +40,8 @@ public class Individual
 	public Individual(int index, double d, double h)
 	{
 		this.index = index;
-		this.param[IDX_PARAM_D] = d;
-		this.param[IDX_PARAM_H] = h;
+		this.paramD = d;
+		this.paramH = h;
 	}
 
 	/**
@@ -52,8 +50,8 @@ public class Individual
 	 */
 	public boolean fitness()
 	{
-		double d = param[IDX_PARAM_D];
-		double h = param[IDX_PARAM_H];
+		double d = paramD;
+		double h = paramH;
 
 		fitness = Math.PI * d * d / 2 + Math.PI * d * h;
 
@@ -83,8 +81,8 @@ public class Individual
 	 */
 	public void mutateObjectParams()
 	{
-		for (int i = 0; i < param.length; i++)
-			param[i] += sigma * rand.nextGaussian();
+		paramD += sigma * rand.nextGaussian();
+		paramH += sigma * rand.nextGaussian();
 
 		double tau = 1D / Math.sqrt(2D);
 		sigma = sigma * Math.exp(tau * rand.nextGaussian());
@@ -99,13 +97,13 @@ public class Individual
 		double d = 0;
 		double h = 0;
 		for (Individual ind : pool) {
-			d += ind.param[IDX_PARAM_D];
-			h += ind.param[IDX_PARAM_H];
+			d += ind.paramD;
+			h += ind.paramH;
 		}
 		d /= pool.length;
 		h /= pool.length;
-		param[IDX_PARAM_D] = d;
-		param[IDX_PARAM_H] = h;
+		paramD = d;
+		paramH = h;
 	}
 
 	@Override
@@ -123,8 +121,8 @@ public class Individual
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append("Individual at ").append(String.format("%02d", index));
-		sb.append(", d: ").append(String.format("%02.3f", param[IDX_PARAM_D]));
-		sb.append(", h: ").append(String.format("%02.3f", param[IDX_PARAM_H]));
+		sb.append(", d: ").append(String.format("%02.3f", paramD));
+		sb.append(", h: ").append(String.format("%02.3f", paramH));
 		sb.append(", fit: ").append(String.format("%04.3f", fitness));
 		sb.append(", g: ").append(String.format("%04.3f", g));
 		sb.append(", ok: ").append(fitnessOk);
