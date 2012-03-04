@@ -130,17 +130,13 @@ public class EvolutionStrategy
 	 * - prints the best individual
 	 * @param offsprings
 	 */
-	private void selection(List<Individual> offsprings)
+	private void selection(List<Individual> fitOffspring)
 	{
 		// first age current population, mix them with fit offspring
-		List<Individual> mixedGen = new ArrayList<Individual>();
+		List<Individual> mixedGen = fitOffspring;
 		for (Individual ind : individuals) {
 			ind.age++;
 			if (ind.age <= maxAge)
-				mixedGen.add(ind);
-		}
-		for (Individual ind : offsprings) {
-			if (ind.fitnessOk)
 				mixedGen.add(ind);
 		}
 
@@ -184,12 +180,20 @@ public class EvolutionStrategy
 	public void newGeneration()
 	{
 		// create offsprings
-		List<Individual> offsprings = new ArrayList<Individual>();
-		for (int i = 0; i < numOffspring; i++)
-			offsprings.add(createOneOffspring());
+		List<Individual> fitOffspring = new ArrayList<Individual>();
+		for (int i = 0; i < numOffspring; i++) {
+			Individual ind = createOneOffspring();
+
+			/*
+			 * Pre-filter only fit offspring for selection. Saves a loop over
+			 * all offspring during selection.
+			 */
+			if (ind.fitnessOk)
+				fitOffspring.add(ind);
+		}
 
 		// select
-		selection(offsprings);
+		selection(fitOffspring);
 
 		generation++;
 	}
