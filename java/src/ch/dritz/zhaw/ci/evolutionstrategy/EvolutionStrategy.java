@@ -206,6 +206,14 @@ public class EvolutionStrategy
 		return generation;
 	}
 
+	/**
+	 * @return the individuals
+	 */
+	public List<Individual> getIndividuals()
+	{
+		return individuals;
+	}
+
 	private void printBestIndividual(int gen, Individual ind)
 	{
 		System.out.print("generation: ");
