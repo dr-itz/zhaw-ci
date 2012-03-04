@@ -88,9 +88,9 @@ public class EvolutionStrategy
 	 * @param pool
 	 * @return array with recombined params
 	 */
-	private int[] recombineObjectParams(Individual[] pool)
+	private double[] recombineObjectParams(Individual[] pool)
 	{
-		int[] params = new int[pool[0].numParams()];
+		double[] params = new double[pool[0].numParams()];
 		for (int j = 0; j < params.length; j++)
 			params[j] = 0;
 
@@ -99,7 +99,7 @@ public class EvolutionStrategy
 				params[j] += pool[i].getParam(j);
 		}
 		for (int j = 0; j < params.length; j++)
-			params[j] = (int) Math.round((double) params[j] / pool.length);
+			params[j] = params[j] / pool.length;
 		return params;
 	}
 
@@ -119,7 +119,7 @@ public class EvolutionStrategy
 		Individual[] pool = marriage();
 
 		// recombine object params using average recombination
-		int[] params = recombineObjectParams(pool);
+		double[] params = recombineObjectParams(pool);
 		Individual ind = new Individual(0, params);
 
 		/*

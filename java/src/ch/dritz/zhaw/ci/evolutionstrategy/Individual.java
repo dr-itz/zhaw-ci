@@ -10,8 +10,9 @@ import java.util.Random;
 public class Individual
 	implements Cloneable
 {
-	public static final double UNIT = 1D;
 	public static final double MIN_G = 300D;
+	public static final double MAX_D = 30D;
+	public static final double MAX_H = 30D;
 
 	public static final int IDX_PARAM_D = 0;
 	public static final int IDX_PARAM_H = 1;
@@ -19,7 +20,7 @@ public class Individual
 	public static Random rand = new Random();
 
 	// object parameters
-	int[] param = { 0, 0};
+	double[] param = { 0D, 0D};
 
 	// fitness
 	double fitness = 0D;
@@ -34,14 +35,14 @@ public class Individual
 	// other
 	int index = 0;
 
-	public Individual(int index, int d, int h)
+	public Individual(int index, double d, double h)
 	{
 		this.index = index;
 		this.param[IDX_PARAM_D] = d;
 		this.param[IDX_PARAM_H] = h;
 	}
 
-	public Individual(int index, int[] param)
+	public Individual(int index, double[] param)
 	{
 		this.index = index;
 		this.param = Arrays.copyOf(param, 2);
@@ -52,7 +53,7 @@ public class Individual
 		return 2;
 	}
 
-	public int getParam(int idx)
+	public double getParam(int idx)
 	{
 		return param[idx];
 	}
@@ -68,13 +69,14 @@ public class Individual
 	 */
 	public boolean fitness()
 	{
-		double d = UNIT * param[IDX_PARAM_D];
-		double h = UNIT * param[IDX_PARAM_H];
+		double d = param[IDX_PARAM_D];
+		double h = param[IDX_PARAM_H];
 
 		fitness = Math.PI * d * d / 2 + Math.PI * d * h;
 
 		g = Math.PI * d * d * h / 4;
-		fitnessOk = (g >= MIN_G) && (d > 0D) && (h > 0D);
+		fitnessOk = (g >= MIN_G) && (d > 0D) && (d <= MAX_D) &&
+			(h > 0D) && (h <= MAX_H);
 
 		return fitnessOk;
 	}
@@ -120,8 +122,8 @@ public class Individual
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append("Individual at ").append(String.format("%02d", index));
-		sb.append(", d: ").append(String.format("%02d", param[IDX_PARAM_D]));
-		sb.append(", h: ").append(String.format("%02d", param[IDX_PARAM_H]));
+		sb.append(", d: ").append(String.format("%02.3f", param[IDX_PARAM_D]));
+		sb.append(", h: ").append(String.format("%02.3f", param[IDX_PARAM_H]));
 		sb.append(", fit: ").append(String.format("%04.3f", fitness));
 		sb.append(", g: ").append(String.format("%04.3f", g));
 		sb.append(", ok: ").append(fitnessOk);
@@ -133,7 +135,7 @@ public class Individual
 	public static Individual randomIndividual(int index)
 	{
 		return new Individual(index,
-			(int) ((double) rand.nextInt(30) / UNIT),
-			(int) ((double) rand.nextInt(30) / UNIT));
+			(double) rand.nextInt(30),
+			(double) rand.nextInt(30));
 	}
 }
