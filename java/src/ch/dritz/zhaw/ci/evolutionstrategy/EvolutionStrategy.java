@@ -84,26 +84,6 @@ public class EvolutionStrategy
 	}
 
 	/**
-	 * average recombinations of all params in the pool
-	 * @param pool
-	 * @return array with recombined params
-	 */
-	private double[] recombineObjectParams(Individual[] pool)
-	{
-		double[] params = new double[pool[0].numParams()];
-		for (int j = 0; j < params.length; j++)
-			params[j] = 0;
-
-		for (int i = 0; i < pool.length; i++) {
-			for (int j = 0; j < params.length; j++)
-				params[j] += pool[i].getParam(j);
-		}
-		for (int j = 0; j < params.length; j++)
-			params[j] = params[j] / pool.length;
-		return params;
-	}
-
-	/**
 	 * creates a single new Individual:
 	 * - select numParents into a pool
 	 * - recombine strategic params using discrete recombination
@@ -119,8 +99,8 @@ public class EvolutionStrategy
 		Individual[] pool = marriage();
 
 		// recombine object params using average recombination
-		double[] params = recombineObjectParams(pool);
-		Individual ind = new Individual(0, params);
+		Individual ind = new Individual();
+		ind.recombineObjectParams(pool);
 
 		/*
 		 * Recombine strategic params using discrete recombination.

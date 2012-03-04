@@ -1,6 +1,5 @@
 package ch.dritz.zhaw.ci.evolutionstrategy;
 
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -35,32 +34,16 @@ public class Individual
 	// other
 	int index = 0;
 
+	public Individual()
+	{
+
+	}
+
 	public Individual(int index, double d, double h)
 	{
 		this.index = index;
 		this.param[IDX_PARAM_D] = d;
 		this.param[IDX_PARAM_H] = h;
-	}
-
-	public Individual(int index, double[] param)
-	{
-		this.index = index;
-		this.param = Arrays.copyOf(param, 2);
-	}
-
-	public int numParams()
-	{
-		return 2;
-	}
-
-	public double getParam(int idx)
-	{
-		return param[idx];
-	}
-
-	public void setParam(int idx, int value)
-	{
-		param[idx] = value;
 	}
 
 	/**
@@ -105,6 +88,24 @@ public class Individual
 
 		double tau = 1D / Math.sqrt(2D);
 		sigma = sigma * Math.exp(tau * rand.nextGaussian());
+	}
+
+	/**
+	 * Recombines the object parameters using average recombination
+	 * @param pool
+	 */
+	public void recombineObjectParams(Individual[] pool)
+	{
+		double d = 0;
+		double h = 0;
+		for (Individual ind : pool) {
+			d += ind.param[IDX_PARAM_D];
+			h += ind.param[IDX_PARAM_H];
+		}
+		d /= pool.length;
+		h /= pool.length;
+		param[IDX_PARAM_D] = d;
+		param[IDX_PARAM_H] = h;
 	}
 
 	@Override
