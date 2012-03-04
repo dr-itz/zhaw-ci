@@ -136,7 +136,7 @@ public class Individual
 	public static Individual randomIndividual(int index)
 	{
 		return new Individual(index,
-			(double) rand.nextInt(30),
-			(double) rand.nextInt(30));
+			rand.nextDouble() * MAX_D,
+			rand.nextDouble() * MAX_H);
 	}
 }
