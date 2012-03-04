@@ -74,7 +74,7 @@ public class Individual
 		fitness = Math.PI * d * d / 2 + Math.PI * d * h;
 
 		g = Math.PI * d * d * h / 4;
-		fitnessOk = g >= MIN_G;
+		fitnessOk = (g >= MIN_G) && (d > 0D) && (h > 0D);
 
 		return fitnessOk;
 	}
