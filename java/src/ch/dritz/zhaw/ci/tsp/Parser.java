@@ -2,8 +2,9 @@ package ch.dritz.zhaw.ci.tsp;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,8 @@ public class Parser
 		List<int[]> distances = new ArrayList<int[]>();
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader(input));
+			br = new BufferedReader(new InputStreamReader(
+				new FileInputStream(input), "UTF8"));
 			String line;
 			boolean part1 = true;
 			while ((line = br.readLine()) != null) {
