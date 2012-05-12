@@ -64,8 +64,24 @@ public class TravelingSalesman
 	public Path findSolution()
 	{
 		Path s = initialize();
-		// FIXME: simulated annealing using 2-opt
-		return s;
+		Path sBest = s;
+		/*
+		 * FIXME: simulated annealing using 2-opt
+		int n = 0;
+		int t = 300;
+		while (t > 20) {
+			while (inner condition) {
+				sNew = generatePath(s);
+				s = selectMetropolis(s, sNew, T);
+				if (s.measure() < sBest.measure() {
+					sBest = s;
+				}
+			}
+			t = newTemp(t);
+			n++;
+		}
+		*/
+		return sBest;
 	}
 
 	/**
@@ -83,5 +99,9 @@ public class TravelingSalesman
 		TravelingSalesman tsp = new TravelingSalesman(new File(args[0]));
 		Path s = tsp.findSolution();
 		System.out.println(s);
+
+		// FIXME: remove, testing only
+		Path s2 = s.apply2opt(10, 15);
+		System.out.println(s2);
 	}
 }
