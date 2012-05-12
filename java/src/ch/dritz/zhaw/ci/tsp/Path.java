@@ -68,12 +68,9 @@ public class Path
 
 	public Path clone()
 	{
-		try {
-			// Cloneable is a stupid interface
-			return (Path) super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
+		Path ret = new Path(table);
+		ret.order = order.clone();
+		return ret;
 	}
 
 	/**
