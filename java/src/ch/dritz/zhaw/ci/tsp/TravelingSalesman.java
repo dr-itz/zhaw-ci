@@ -2,29 +2,70 @@ package ch.dritz.zhaw.ci.tsp;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
+ * Solves the traveling salesman problem using simulated annealing
  * @author D. Ritz
  */
 public class TravelingSalesman
 {
-	private Table tab;
+	private static final int START_TOWN = 0; // where the tour starts
+
+	private Table table;
+	private int size;
 
 	public TravelingSalesman(File file)
 		throws IOException
 	{
-		tab = Parser.parse(file);
+		table = Parser.parse(file);
+		size = table.getSize();
 	}
 
-	private void initialize()
+	/**
+	 * calculates the initial path using a nearest-neighbor heuristic, starting
+	 * with the first town
+	 */
+	private Path initialize()
 	{
+		Path ret = new Path(table);
 
+		Map<Integer, Boolean> visited = new HashMap<Integer, Boolean>();
+		ret.setTownAtPosition(0, START_TOWN);
+		visited.put(START_TOWN, Boolean.TRUE);
+
+		int prevIdx = START_TOWN;
+		// outer loop: elements in the path
+		for (int i = 1; i < size; i++) {
+			int minDist = Integer.MAX_VALUE;
+			int minIdx = 0;
+			// inner loop: find smallest distance
+			for (int j = 0; j < size; j++) {
+				if (visited.containsKey(j))
+					continue;
+				int distance = table.getDistance(prevIdx, j);
+				if (distance < minDist) {
+					minDist = distance;
+					minIdx = j;
+				}
+			}
+
+			ret.setTownAtPosition(i, minIdx);
+			visited.put(minIdx, Boolean.TRUE);
+			prevIdx = minIdx;
+		}
+		return ret;
 	}
 
-	public void findSolution()
+	/**
+	 * finds a solution to the TSP using simulated annealing
+	 */
+	public Path findSolution()
 	{
-		initialize();
-
+		Path s = initialize();
+		// FIXME: simulated annealing using 2-opt
+		return s;
 	}
 
 	/**
@@ -40,6 +81,7 @@ public class TravelingSalesman
 		}
 
 		TravelingSalesman tsp = new TravelingSalesman(new File(args[0]));
-		tsp.findSolution();
+		Path s = tsp.findSolution();
+		System.out.println(s);
 	}
 }
