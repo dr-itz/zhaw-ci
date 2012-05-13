@@ -18,6 +18,7 @@ public strictfp class TravelingSalesman
 	private Table table;
 	private int size;
 	private Random rand;
+	private Path initialPath;
 
 	public TravelingSalesman(File file)
 		throws IOException
@@ -25,13 +26,15 @@ public strictfp class TravelingSalesman
 		table = Parser.parse(file);
 		size = table.getSize();
 		rand = new Random();
+
+		initialize();
 	}
 
 	/**
 	 * calculates the initial path using a nearest-neighbor heuristic, starting
 	 * with the first town
 	 */
-	private Path initialize()
+	private void initialize()
 	{
 		Path ret = new Path(table);
 
@@ -59,7 +62,15 @@ public strictfp class TravelingSalesman
 			visited.put(minIdx, Boolean.TRUE);
 			prevIdx = minIdx;
 		}
-		return ret;
+		initialPath = ret;
+	}
+
+	/**
+	 * @return the initialPath
+	 */
+	public Path getInitialPath()
+	{
+		return initialPath;
 	}
 
 	/**
@@ -110,9 +121,7 @@ public strictfp class TravelingSalesman
 	 */
 	public Path findSolution()
 	{
-		Path s = initialize();
-		System.out.println(s);
-
+		Path s = initialPath;
 		Path sBest = s;
 		double t = 300D;
 		while (t > 20) {
@@ -142,7 +151,17 @@ public strictfp class TravelingSalesman
 		}
 
 		TravelingSalesman tsp = new TravelingSalesman(new File(args[0]));
-		Path s = tsp.findSolution();
-		System.out.println(s);
+		Path initial = tsp.getInitialPath();
+		System.out.print("INITIAL : ");
+		System.out.println(initial);
+
+		Path best = initial;
+		for (int i = 0; i < 30; i++) {
+			Path sol = tsp.findSolution();
+			if (sol.measure() < best.measure())
+				best = sol;
+		}
+		System.out.print("BEST: ");
+		System.out.println(best);
 	}
 }
