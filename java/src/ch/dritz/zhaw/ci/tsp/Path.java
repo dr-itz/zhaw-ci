@@ -92,8 +92,7 @@ public class Path
 			i2 = afterIndex1;
 		}
 		// left and right edge of same node does not work
-		int dist = (i2 - i1) % order.length;
-		if (dist < 2)
+		if (i2 - i1 < 2)
 			return null;
 
 		Path ret = clone();
@@ -114,9 +113,12 @@ public class Path
 		int total = 0;
 		for (int i = 0; i < order.length; i++) {
 			sb.append("[").append(i).append("]");
-			sb.append(table.getTown(getTownAtPosition(i))).append(" ==");
 
-			int dist = table.getDistance(getTownAtPosition(i), getTownAtPosition(i + 1));
+			int townPos = getTownAtPosition(i);
+			sb.append(table.getTown(townPos)).append("(").append(townPos).append(")");
+			sb.append(" ==");
+
+			int dist = table.getDistance(townPos, getTownAtPosition(i + 1));
 			total += dist;
 
 			sb.append(dist);
