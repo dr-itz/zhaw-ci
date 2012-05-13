@@ -2,7 +2,9 @@ package ch.dritz.zhaw.ci.tsp;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -19,6 +21,8 @@ public strictfp class TravelingSalesman
 	private int size;
 	private Random rand;
 	private Path initialPath;
+	private Path bestPath;
+	private List<Thread> threads;
 
 	public TravelingSalesman(File file)
 		throws IOException
@@ -26,6 +30,7 @@ public strictfp class TravelingSalesman
 		table = Parser.parse(file);
 		size = table.getSize();
 		rand = new Random();
+		threads = new ArrayList<Thread>();
 
 		initialize();
 	}
@@ -63,6 +68,7 @@ public strictfp class TravelingSalesman
 			prevIdx = minIdx;
 		}
 		initialPath = ret;
+		bestPath = ret;
 	}
 
 	/**
@@ -135,7 +141,47 @@ public strictfp class TravelingSalesman
 			t = newTemp(t);
 		}
 
+		setBestPath(sBest);
 		return sBest;
+	}
+
+	private synchronized void setBestPath(Path path)
+	{
+		if (path.measure() < bestPath.measure())
+			bestPath = path;
+	}
+
+	public void findBestOutOf(final int number)
+	{
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run()
+			{
+				for (int i = 0; i < number; i++)
+					findSolution();
+			}
+		});
+		threads.add(t);
+		t.start();
+	}
+
+	public void waitFinished()
+	{
+		for (Thread t : threads) {
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				// don't care
+			}
+		}
+	}
+
+	/**
+	 * @return the bestPath
+	 */
+	public synchronized Path getBestPath()
+	{
+		return bestPath;
 	}
 
 	/**
@@ -145,23 +191,28 @@ public strictfp class TravelingSalesman
 	public static void main(String[] args)
 		throws IOException
 	{
-		if (args.length != 1) {
-			System.err.println("Usage: TravelingSalesman <input-file>");
+		if (args.length < 1) {
+			System.err.println("Usage: TravelingSalesman <input-file> [<threads> [<iterations>]]");
 			System.exit(1);
 		}
+
+		int numThreads = 2;
+		int numIter = 10;
+		if (args.length > 1)
+			numThreads = Integer.parseInt(args[1]);
+		if (args.length > 2)
+			numIter = Integer.parseInt(args[2]);
 
 		TravelingSalesman tsp = new TravelingSalesman(new File(args[0]));
 		Path initial = tsp.getInitialPath();
 		System.out.print("INITIAL : ");
 		System.out.println(initial);
 
-		Path best = initial;
-		for (int i = 0; i < 30; i++) {
-			Path sol = tsp.findSolution();
-			if (sol.measure() < best.measure())
-				best = sol;
-		}
+		for (int i = 0; i < numThreads; i++)
+			tsp.findBestOutOf(numIter);
+
+		tsp.waitFinished();
 		System.out.print("BEST: ");
-		System.out.println(best);
+		System.out.println(tsp.getBestPath());
 	}
 }

@@ -8,6 +8,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.dritz.zhaw.ci.tsp.TravelingSalesman"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="../slides/Entfernungen_schweizer_Staedte.txt"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="../slides/Entfernungen_schweizer_Staedte.txt 4 20"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ComputationalIntelligence"/>
 </launchConfiguration>
